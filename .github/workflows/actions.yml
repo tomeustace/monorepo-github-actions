@@ -1,0 +1,62 @@
+
+name: run-frontend-backend-jobs
+on: [push]
+jobs:
+
+  # JOB to run change detection
+  changes:
+    runs-on: ubuntu-latest
+
+    # Set job outputs to values from filter step
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+    # For pull requests it's not necessary to checkout the code
+    - uses: actions/checkout@v3
+    - uses: dorny/paths-filter@v2.10.2
+      id: filter
+      with:
+        filters: |
+          backend:
+            - 'apps/api/**'
+          frontend:
+            - 'apps/monorepo-github-actions/**'
+
+  # JOB to build and deploy backend code
+  backend:
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: Checkout Repo
+      uses: actions/checkout@master
+    # Install dependencies 
+    - name: Install Dependencies
+      run: npm install
+    # Deploying the functions to firebase
+    - name:  Deploy to Firebase
+      uses: w9jds/firebase-action@master
+      with:
+          args: deploy --only functions
+      env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+
+  # JOB to build and deploy frontend code
+  frontend:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci && npm run build monorepo-github-actions
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MONOREPO_GITHUB_ACTIONS_FRBS }}'
+          channelId: live
+          projectId: monorepo-github-actions-frbs
