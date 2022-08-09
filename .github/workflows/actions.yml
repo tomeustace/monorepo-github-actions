@@ -37,6 +37,9 @@ jobs:
     # Install dependencies 
     - name: Install Dependencies
       run: npm install
+    # Build API 
+    - name: Build API
+      run: npm run build api
     # Deploying the functions to firebase
     - name:  Deploy to Firebase
       uses: w9jds/firebase-action@master
