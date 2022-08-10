@@ -53,6 +53,8 @@ jobs:
     steps:
       - name: Build API
         run: npm ci && npm run build monorepo-github-actions
+
+      - name: Deploy API
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
