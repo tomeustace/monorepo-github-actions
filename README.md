@@ -2,6 +2,8 @@
 
 # MonorepoGithubActions
 
+This is a companion repository for blog post on how to set up Monorepos that are integrated with Github Actions.  It uses Nx, Nest, Angular, Firebase Hosting, Firebase Functions and Github Actions.
+
 This project was generated using [Nx](https://nx.dev).
 
 <p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
